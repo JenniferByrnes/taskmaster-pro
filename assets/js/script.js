@@ -47,16 +47,22 @@ var saveTasks = function() {
 
 var auditTask = function(taskEl) {
   // get date from task element
-  var date = $(taskEl).find("span").text().trim();
-  // ensure it worked
-  console.log(date); 
+  var date = $(taskEl).find("span").text().trim(); 
 
   // convert to moment object at 5:00pm
   var time = moment(date, "L").set("hour", 17);
-  // this should print out an object for the value of the date variable, but at 5:00pm of that date
-  console.log(time);
 
-};
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+
+  // apply new class if task is near/over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+  else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning");
+  }
+}
+
 
 
 // modal was triggered
@@ -180,6 +186,9 @@ $(".list-group").on("change", "input[type='text']", function() {
     .addClass("badge badge-primary badge-pill")
     .text(date);
     $(this).replaceWith(taskSpan);
+
+    // Pass task's <li> element into auditTask() to check new due date
+    auditTask($(taskSpan).closest(".list-group-item"));
 });
 
 // remove all tasks
